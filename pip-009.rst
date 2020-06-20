@@ -228,8 +228,10 @@ Record Fields
 Authors
 #######
 
-- `Matthew Slipper`_
+- `mslipper`_
+- `chikeichan`_
 
+.. _mslipper: https://github.com/mslipper
+.. _chikeichan: https://github.com/chikeichan
 .. _PIP-1: ./pip-001.rst
 .. _PIP-7: ./pip-007.rst
-.. _Matthew Slipper: https://www.matthewslipper.com

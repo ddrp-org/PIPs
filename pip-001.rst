@@ -45,6 +45,8 @@ There are also a set of DDRP-specific well-known types with special encodings:
 Authors
 #######
 
-- `Matthew Slipper`_
+- `mslipper`_
+- `chikeichan`_
 
-.. _Matthew Slipper: https://www.matthewslipper.com
+.. _mslipper: https://github.com/mslipper
+.. _chikeichan: https://github.com/chikeichan

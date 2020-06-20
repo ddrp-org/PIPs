@@ -38,6 +38,17 @@ A node's "identity key" refers to a ``secp256k1`` key pair that identifies the
 node to the rest of the network. It is distinct from the ``secp256k1`` key pair
 used by blob owners to authenticate data.
 
+Nomenclature
+############
+
+Identity key
+   A ``secp256k1`` key pair that identifies the node and authenticates transport 
+   messages to the rest of the network.
+
+DDRP key
+   A ``secp256k1`` key pair that authenticates record updates to a blob
+
+
 Handshake Phase Overview
 ************************
 
@@ -80,6 +91,10 @@ sent.
 Message Envelope
 ################
 
+Transport message are encoded and decoded in-order according to their type and the
+message's schema. A message's structure must be known beforehand in order to
+encode or decode it - hence the addition of the type field in the envelope.
+
 DDRP messages MUST be sent inside an envelope with the following schema:
 
 #. ``magic``: A ``uint32`` field that contains a magic number representing the
@@ -107,7 +122,7 @@ The ``signature`` field is generated according to the following procedure:
 #. The ``type`` and ``message`` fields are PIP-1 encoded into a structure with
    the schema ``[type, timestamp, message]``.
 #. The ``BLAKE2B-256`` hash of the above structure is calculated.
-#. The sender's key identity signs the resulting hash.
+#. The sender's identity key generates a ``secp256k1`` signature of the resulting hash.
 
 Nodes MUST ignore messages with an invalid ``type`` or ``signature`` field.
 Nodes SHOULD disconnect if mal-formed messages are received.
@@ -273,7 +288,9 @@ techniques.
 Authors
 #######
 
-- `Matthew Slipper`_
+- `mslipper`_
+- `chikeichan`_
 
 .. _Noise: https://noiseprotocol.org/noise.html
-.. _Matthew Slipper: https://www.matthewslipper.com
+.. _mslipper: https://github.com/mslipper
+.. _chikeichan: https://github.com/chikeichan

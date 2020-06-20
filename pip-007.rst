@@ -60,8 +60,10 @@ DDRP link to a record can be represented as ``ddrp://subdomain.tld/timstamp``
 Authors
 #######
 
-- `Matthew Slipper`_
+- `mslipper`_
+- `chikeichan`_
 
+.. _mslipper: https://github.com/mslipper
+.. _chikeichan: https://github.com/chikeichan
 .. _PIP-8: ./pip-008.rst
 .. _PIP-9: ./pip-009.rst
-.. _Matthew Slipper: https://www.matthewslipper.com

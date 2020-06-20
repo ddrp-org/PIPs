@@ -163,8 +163,10 @@ The ``UpdateReq`` Message
 Authors
 #######
 
-- `Matthew Slipper`_
+- `mslipper`_
+- `chikeichan`_
 
+.. _mslipper: https://github.com/mslipper
+.. _chikeichan: https://github.com/chikeichan
 .. _PIP-1: /spec/pip-001.html
 .. _PIP-3: /spec/pip-003.html
-.. _Matthew Slipper: https://www.matthewslipper.com

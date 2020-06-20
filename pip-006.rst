@@ -28,6 +28,8 @@ Parsers SHOULD tolerate duplicate names as well as leading/trailing whitespace a
 Authors
 #######
 
-- `Matthew Slipper`_
+- `mslipper`_
+- `chikeichan`_
 
-.. _Matthew Slipper: https://www.matthewslipper.com
+.. _mslipper: https://github.com/mslipper
+.. _chikeichan: https://github.com/chikeichan

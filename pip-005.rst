@@ -80,7 +80,9 @@ To provide an initial set of peers to connect to, the DDRP team maintains a list
 Authors
 #######
 
-- `Matthew Slipper`_
+- `mslipper`_
+- `chikeichan`_
 
+.. _mslipper: https://github.com/mslipper
+.. _chikeichan: https://github.com/chikeichan
 .. _PIP-2: ./pip-2.html
-.. _Matthew Slipper: https://www.matthewslipper.com

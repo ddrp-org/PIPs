@@ -82,6 +82,12 @@ We can generate the tree's leaves using each sector as input.
 
 See the sub-sector request described in `PIP-4`_ for more details on how this is used to optimize sub-sector synchronization.
 
+Handling Subdomain Partitions
+****************************
+Each subdomain (see `PIP-8`_) is only allowed to update inside their partition and follows the same synchronization protocol as non-paritioned blob. Merkle root for a subdomain is derived by finding the merkle root of the entire blob with all of the other bytes zeroed out.
+
+
+
 Tree Visualization
 ******************
 
@@ -129,7 +135,8 @@ When parsing the ``TXT`` record:
 Subdomain Partition Ownership
 #############################
 
-Blob owners can delgate ownership of a partition (see `PIP-8`_) within a blob 
+Blob owners can delgate ownership of a partition (see `PIP-8`_) within a blob to another ``secp256k1`` key pair.
+
 
 Blob Signatures
 ###############
@@ -145,9 +152,11 @@ The owner of a blob signs over its contents by generating the ``schnorr`` signat
 Authors
 #######
 
-- `Matthew Slipper`_
+- `mslipper`_
+- `chikeichan`_
 
+.. _mslipper: https://github.com/mslipper
+.. _chikeichan: https://github.com/chikeichan
 .. _PIP-8: ./pip-008.html
 .. _PIP-4: ./pip-004.html
 .. _PIP-1: ./pip-001.html
-.. _Matthew Slipper: https://www.matthewslipper.com

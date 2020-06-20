@@ -65,9 +65,11 @@ All remaining bytes belong to the blob owner's partition for blob merkelization 
 Authors
 #######
 
-- `Matthew Slipper`_
+- `mslipper`_
+- `chikeichan`_
 
+.. _mslipper: https://github.com/mslipper
+.. _chikeichan: https://github.com/chikeichan
 .. _PIP-3: ./pip-003.rst
 .. _PIP-4: ./pip-004.rst
 .. _PIP-8: ./pip-008.rst
-.. _Matthew Slipper: https://www.matthewslipper.com
