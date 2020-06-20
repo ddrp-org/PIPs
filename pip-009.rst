@@ -122,9 +122,9 @@ Record Type
 
 Record Fields
 *************
-#. ``reference``: ``RecordRef`` (see `PIP-1`_)
+#. ``timestamp``: ``Time``
 
-- if it is a ``RecordRef`` that does not reference another ``MOD`` record, this record SHOULD be ignored.
+- if it is a ``timestamp`` that does not reference another ``MOD`` record, this record SHOULD be ignored.
 - once a moderation record is deleted, it MUST NOT be undeleted. If someone decides to like, unlike, and like the same post again, it would take 3 records: one for the original like, one for deleting the original like, and a final one for the re-like.
   
 
@@ -218,9 +218,9 @@ Record Type
 
 Record Fields
 *************
-#. ``reference``: ``RecordRef`` (see `PIP-1`_)
+#. ``timestamp``: ``Time``
 
-- if it is a ``RecordRef`` that does not reference another ``CNT`` record, this record SHOULD be ignored.
+- if it is a ``timestamp`` that does not reference another ``CNT`` record, this record SHOULD be ignored.
 - once a connection record is deleted, it MUST NOT be undeleted similar to how deleting a moderation record works.
 
 
