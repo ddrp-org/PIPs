@@ -7,7 +7,7 @@ the DDRP protocol specification.
 +------------+--------------------------+
 | `PIP-000`_ | Meta                     |
 +------------+--------------------------+
-| `PIP-001`_ | Messaging                |
+| `PIP-001`_ | Data Types               |
 +------------+--------------------------+
 | `PIP-002`_ | Authenticated Transport  |
 +------------+--------------------------+
@@ -19,10 +19,13 @@ the DDRP protocol specification.
 +------------+--------------------------+
 | `PIP-006`_ | Ban Lists                |
 +------------+--------------------------+
-| `PIP-007`_ | Subdomain Blobs          |
+| `PIP-007`_ | Records                  |
 +------------+--------------------------+
-| `PIP-008`_ | Social Message Formats   |
+| `PIP-008`_ | Subdomain Records        |
 +------------+--------------------------+
+| `PIP-009`_ | Social Records           |
++------------+--------------------------+
+
 
 Licensed under a `CC-BY-4.0`_ license.
 
@@ -35,4 +38,5 @@ Licensed under a `CC-BY-4.0`_ license.
 .. _PIP-006: ./pip-006.rst
 .. _PIP-007: ./pip-007.rst
 .. _PIP-008: ./pip-008.rst
+.. _PIP-009: ./pip-009.rst
 .. _CC-BY-4.0: https://creativecommons.org/licenses/by/4.0/

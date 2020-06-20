@@ -1,4 +1,4 @@
-PIP-1: Messaging
+PIP-1: Data Types
 ================
 
 .. contents:: Table of Contents
@@ -14,13 +14,8 @@ PIP.
 
 All data fields are unsigned big-endian unless otherwise specified.
 
-Field Encoding
+Data Encoding
 ##############
-
-Message fields are encoded and decoded in-order according to their type and the
-message's schema. A message's structure must be known beforehand in order to
-encode or decode it - hence the addition of the type field in the message
-envelope.
 
 The below list outlines how primitives types are encoded:
 
@@ -36,6 +31,8 @@ The below list outlines how primitives types are encoded:
 #. ``[N]T``: Encoded as the concatenation of the encoding of T.
 #. ``[]T``: Encoded as a binary.Uvarint length prefix followed by the
    concatenation of the encoding of T.
+#. ``RecordRef``: serialized string formatted as ``[subdomain].[tld]/[timestamp] (e.g. sub.me/12345678)``, encoded as a a UTF-8 []byte.
+#. ``NameRef``: serialized string formatted as ``[subdomain].[tld] (e.g. sub.me)``, encoded as a a UTF-8 []byte.
 
 There are also a set of DDRP-specific well-known types with special encodings:
 

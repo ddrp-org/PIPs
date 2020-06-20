@@ -21,6 +21,9 @@ sector size
 sector ID
   The index of a sector within a blob. For example, given the blob and sector sizes above, the sector ID representing offsets 65,536-131,072 would be ``1``.
 
+chunk size
+  The maximum size of a chunk. Currently, this is set to 256 bytes.
+
 
 Blob Layout
 ###########
@@ -29,13 +32,21 @@ A blob is a file that is exactly ``blob size`` in length. Data may be written to
 
 Blobs are further partitioned into ``blob size/sector size`` sectors. Sectors are used by the synchronization protocol described by `PIP-4`_ to determine which pieces of the blob have changed, and authenticate those changes. Sectors have IDs, which correspond to their indices within each blob.
 
+Sectors are also partitioned into ``sector size/chunk size`` chunks. Chunks are used by synchronization protocol described by `PIP-4`_ to optimize synchronization time for frequent sub-sector changes. Chunks have IDs, which correspond to their indices within each sectors.
+
 Diagrammatically, blobs look like this:
 
 .. code-block::
 
   +-----------------------------------+
+  |  Chunk 0  |  Chunk 1  |  Chunk 2  | 
+  | (0 - 255) | (256-511) | (512-767) |
+  |                                   |
   |             Sector 0              |
   |         (Offsets 0-65535)         |
+  |                                   |
+  |                 |    Chunk 255    |
+  |                 | (65,280-65,535) |
   +-----------------------------------+
   |             Sector 1              |
   |      (Offsets 65536-131072)       |
@@ -51,42 +62,58 @@ Diagrammatically, blobs look like this:
   |    (Offsets 16711680-16777216)    |
   +-----------------------------------+
 
-Note that the contents of the blob itself are opaque to the protocol. Applications can treat the blob as a continuous, random-access sequence of ``blob size`` bytes and ignore the implementation details of how DDRP will partition and synchronize the blob.
 
 Blob Merkleization
 ##################
 
-Blob owners sign over the blob's Merkle root to authenticate the data contained therein. DDRP uses a binary Merkle tree to generate the Merkle root. 4096-byte chunks of blob data are used as input to the tree's leaves. This allows the ``sector size`` to be changed to any power of two larger than 4096 in the future without invalidation historical signatures.
+DDRP uses a binary Merkle tree with a custom leaf-hashing function to generate the Merkle root. Blob owners then sign over the blob's Merkle root to authenticate the data contained therein. 
 
-To determine which sectors have changed, the synchronization process described in `PIP-4`_ uses something called a "Merkle base" to compare the contents of two blobs. Consider the following Merkle small Merkle tree:
+Custom Leaf Generation
+**********************
+ 
+We can generate the tree's leaves using each sector as input.
+
+1. Separate sector into a list of 256-byte chunks.
+2. Turn each chunks into a ``BLAKE2B-256`` hash (``chunk_hash``).
+3. Starting from the first chunks, for chunks ``[0...n]``,
+   a) If ``leaf_value`` is null, set ``leaf_value`` to a ``BLAKE2B-256`` hash of current ``chuck_hash``.
+   b) if ``leaf_value`` is not null, set ``leaf_value`` to a ``BLAKE2B-256`` hash of current ``chuck_hash`` and ``value``.
+   c) Repeat until chunk ``n``.
+
+See the sub-sector request described in `PIP-4`_ for more details on how this is used to optimize sub-sector synchronization.
+
+Tree Visualization
+******************
+
+To determine which sectors have changed, the synchronization process described in `PIP-4`_ uses something called a "Merkle base" to compare the contents of two blobs. Consider the following small Merkle tree, the merkle base is ``[H(A), H(B), H(C), H(D)]``
+
 
 .. code-block::
 
                    +-----------------------------+
                    |                             |
-                   |                             |                  (Level 0:) The root hashes 16384b of data
+                   |                             |                  
                    +-----------------------------+
                                   |
                  +----------------+----------------+
                  |                                 |
          +-------v------+                  +-------v------+
          |              |                  |              |
-         |              |                  |              |         (Level 1:) Each node hashes 8192b of data
+         |              |                  |              |         
          +--------------+                  +--------------+
                  |                                 |
         +--------+-------+                +--------+-------+
         |                |                |                |
   +-----v----+     +-----v----+     +-----v----+     +-----v----+
   |   H(A)   |     |   H(B)   |     |   H(C)   |     |   H(D)   |
-  |          |     |          |     |          |     |          |   (Level 2:) Each node hashes 4096b of data
+  |          |     |          |     |          |     |          |   
   +-----^----+     +-----^----+     +-----^----+     +-----^----+
         |                |                |                |
   +-----+----+     +-----+----+     +-----+----+     +-----+----+
-  |  Data A  |     |  Data B  |     |  Data C  |     |  Data D  |
-  | (4096b)  |     | (4096b)  |     | (4096b)  |     | (4096b)  |
+  |  Sect A  |     |  Sect B  |     |  Sect C  |     |  Sect D  |
+  | (65536b) |     | (65536b) |     | (65536b) |     | (65536b) |
   +----------+     +----------+     +----------+     +----------+
 
-As shown above, each node hashes a power of two more data as one moves up the tree. The Merkle base refers to the list of internal tree nodes at the level that encompasses ``sector size`` bytes of data. DDRP's Merkle tree has ``blob size/4096=4096`` leaves, so nodes at the eigth level of the tree will contain the hashes that hash over ``sector size`` bytes of data.
 
 
 Blob Ownership
@@ -98,11 +125,16 @@ When parsing the ``TXT`` record:
 
 1. Nodes MUST tolerate mal-formed ``DDRPKEY`` ``TXT`` records by ignoring them.
 2. If multiple ``DDRPKEY`` ``TXT`` records are present for a given TLD, nodes MUST ignore all other records except the first.
+   
+Subdomain Partition Ownership
+#############################
+
+Blob owners can delgate ownership of a partition (see `PIP-8`_) within a blob 
 
 Blob Signatures
 ###############
 
-The owner of a blob signs over its contents by generating the ``secp256k1`` signature of the hash ``BLAKE2B-256("DDRPBLOB", name, update timestamp, merkle root, reserved)``, encoded as follows:
+The owner of a blob signs over its contents by generating the ``schnorr`` signature of the hash ``BLAKE2B-256("DDRPBLOB", name, update timestamp, merkle root, reserved)``, encoded as follows:
 
 #. ``DDRPBLOB``: Encoded as an ASCII ``[8]byte``.
 #. ``name``: A ``string``.
@@ -115,6 +147,7 @@ Authors
 
 - `Matthew Slipper`_
 
-.. _PIP-4: ./pip-4.html
-.. _PIP-1: ./pip-1.html
+.. _PIP-8: ./pip-008.html
+.. _PIP-4: ./pip-004.html
+.. _PIP-1: ./pip-001.html
 .. _Matthew Slipper: https://www.matthewslipper.com

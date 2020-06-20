@@ -1,0 +1,235 @@
+PIP-9: Social Records
+=============================
+
+.. contents:: Table of Contents
+   :local:
+
+Overview
+########
+
+This PIP defines a set of standard "social record" in order to
+facilitate a few social networking use cases.
+
+
+Post Record
+###########
+
+A post is a textual record designed to contain a status update or blog.
+post.
+
+Record Type
+***********
+#. ``record_type_id``: ``PST``
+#. ``record_version``: ``1``
+#. ``record_subtype``: ``0000``
+
+Record Fields
+*************
+#. ``title``: ``string``
+#. ``body``: ``string``
+#. ``reference``: ``string | RecordRef`` (see `PIP-1`_)
+
+The ``body`` field contains the post's body. SHOULD be formatted using Markdown.
+
+The ``title`` field contains the post's title. MUST not exceed 255 characters in
+length.
+
+The ``reference`` can reference multiple things:
+
+- if it is blank, this post SHOULD be treated as an original post without topic.
+- if it is a ``RecordRef`` that reference another ``PST`` record, this record SHOULD be treated as a reply to that post.
+- if it is a ``RecordRef`` that reference another ``PST-C`` record, this record SHOULD be treated as a post into that channel.
+- if it is a ``RecordRef`` that reference an unknown record, this record SHOULD be treated as an original post without topic.
+- otherwise, it should be treated as a post under a topic encoded as UTF-8 ``string``.
+
+
+A post can be updated by writing a new ``PST`` record with the same timestamp. (See `PIP-007`_)
+
+
+Channel Record
+##############
+
+A channel is a subtype of ``PST`` record designed to aggregate posts under a common thread, such as forum categories, subreddits, video channels, etc.
+
+Record Type
+***********
+#. ``record_type_id``: ``PST``
+#. ``record_version``: ``1``
+#. ``record_subtype``: ``C000``
+
+Record Fields
+*************
+#. ``title``: ``string``
+#. ``body``: ``string``
+#. ``reference``: ``string | RecordRef`` (see `PIP-1`_)
+
+The ``body`` field contains the channel's description. SHOULD be formatted using Markdown.
+
+The ``title`` field contains name of the channel. MUST not exceed 255 characters in
+length.
+
+The ``reference`` can reference multiple things:
+
+- if it is blank, this channel SHOULD be treated as a channel with no topic.
+- if it is a ``RecordRef`` that reference another ``PST`` record, this record SHOULD be treated as a reply to that post.
+- if it is a ``RecordRef`` that reference another ``PST-C`` record, this record SHOULD be treated as a sub-channel under that channel (sub-forums, .
+- if it is a ``RecordRef`` that reference an unknown record, this record SHOULD be treated as a channel with no topic.
+- otherwise, it should be treated as a channel under a topic encoded as UTF-8 ``string``.
+
+
+Moderation Record
+#################
+
+This record is used to describe the creator's moderation action on a subject (post, topic, etc). Moderation records is designed for things such as upvotes, downvotes, NSFW, etc.
+
+When someone select you as the moderator, posts are filtered based on following:
+- posts from people you follow will show up
+- posts from people you block will not show up
+- posts you upvote will show up
+- posts you downvote will not show up
+
+If multiple moderation exists, the priority should be:
+- downvote > upvote > block > follow
+
+Record Type
+***********
+#. ``record_type_id``: ``MOD``
+#. ``record_version``: ``1``
+#. ``record_subtype``: 
+  - ``U000``: Upvote
+  - ``D000``: Downvote
+  - ``P000``: Pin
+
+Record Fields
+*************
+#. ``reference``: ``string | RecordRef`` (see `PIP-1`_)
+
+- if it is a ``RecordRef`` that reference a ``PST`` record, this record SHOULD be treated as a moderation toward that post.
+- if it is a ``RecordRef`` that reference an unknown record, this record SHOULD be ignored.
+- otherwise, it should be treated as a moderation toward the topic encoded as UTF-8 ``string``.
+  
+
+Delete Moderation Record
+########################
+
+This record is used to explicitly delete an existing moderation record (unliking, unpinning) as opposed to aging out of a blobs content (old likes getting removed from blobs due to space limitation).
+
+Record Type
+***********
+#. ``record_type_id``: ``MOD``
+#. ``record_version``: ``1``
+#. ``record_subtype``: ``D000``
+
+Record Fields
+*************
+#. ``reference``: ``RecordRef`` (see `PIP-1`_)
+
+- if it is a ``RecordRef`` that does not reference another ``MOD`` record, this record SHOULD be ignored.
+- once a moderation record is deleted, it MUST NOT be undeleted. If someone decides to like, unlike, and like the same post again, it would take 3 records: one for the original like, one for deleting the original like, and a final one for the re-like.
+  
+
+New Moderator Record
+####################
+
+This record is used to declare the creator as moderator for a ``reference``.
+
+Record Type
+***********
+#. ``record_type_id``: ``MOD``
+#. ``record_version``: ``1``
+#. ``record_subtype``: ``0000``
+
+Record Fields
+*************
+#. ``reference``: ``string | RecordRef`` (see `PIP-1`_)
+   
+- applications SHOULD allow users to easily select from different declared moderators.
+- if original postors declare themselves as moderator for a post, applications SHOULD use that as the default moderation policy.
+- applications SHOULD allow users to comment under a moderation record.
+  
+
+Connection Record
+#################
+
+This record type is used to describe the creator's connection to a record or a name.
+
+Record Type
+***********
+#. ``record_type_id``: ``CNT``
+#. ``record_version``: ``1``
+#. ``record_subtype``: 
+  - ``B000``: Block
+  - ``F000``: Follow
+
+Record Fields
+*************
+#. ``reference``: ``NameRef | RecordRef`` (see `PIP-1`_)
+
+The ``reference`` can reference multiple things:
+
+- if it is a ``RecordRef`` that reference a ``PST`` record, this record SHOULD be treated as a connection (subscribe, mute) to that post.
+- if it is a ``RecordRef`` that reference an unknown record, this record SHOULD be ignored.
+- if it is a ``NameRef`` that reference an known name, this record SHOULD be treated as a connection to that name.
+- otherwise, it should be ignored.
+
+One-way Moderation Link Record
+##############################
+
+Users can link their moderation to another name's moderation records under a specific ``reference``. If Bob creates a one-way moderation link to Alice, those who select Bob as moderation will also be subscribing to Alice's moderation records as well.
+
+- To maintain a spam list, one can use a name to only blocks and downvote.
+- To maintain a approved-only list of user, one can use can use a name to follow allowed list of names.
+- To maintain a NSFW list, one can use an account to downvote all NSFW posts.
+- Users can choose to link their moderation policy to the spam list account (non-spammers can reply), the BitChute community admin (only Bitchute users can reply), the NSFW mod (strict comment policy), or any/all of the above.
+
+
+Record Type
+***********
+#. ``record_type_id``: ``CNT``
+#. ``record_version``: ``1``
+#. ``record_subtype``: 
+  - ``ML00``: Follow
+
+Record Fields
+*************
+#. ``name``: ``NameRef`` (see `PIP-1`_)
+#. ``reference``: ``RecordRef`` (see `PIP-1`_)
+   
+The ``name`` reference a valid ``NameRef``. This record SHOULD be treated as a link to that name's moderation records.
+
+The ``reference`` can reference multiple things:
+
+- if it is blank, this record SHOULD be treated as a link to all of that name's moderations records.
+- if it is a ``RecordRef`` that reference a ``PST`` record, this record SHOULD be treated as a link to that name's moderations records under a specific post.
+- if it is a ``RecordRef`` that reference an unknown record, this record SHOULD be ignored.
+- otherwise, it should be treated as a link to that name's moderations records under a specific topic encoded as UTF-8 ``string``.
+
+
+Delete Connection Record
+########################
+
+This record is used to explicitly delete an existing moderation record (unliking, unpinning) as opposed to aging out of a blobs content (old likes getting removed from blobs due to space limitation).
+
+Record Type
+***********
+#. ``record_type_id``: ``CNT``
+#. ``record_version``: ``1``
+#. ``record_subtype``: ``D000``
+
+Record Fields
+*************
+#. ``reference``: ``RecordRef`` (see `PIP-1`_)
+
+- if it is a ``RecordRef`` that does not reference another ``CNT`` record, this record SHOULD be ignored.
+- once a connection record is deleted, it MUST NOT be undeleted similar to how deleting a moderation record works.
+
+
+
+Authors
+#######
+
+- `Matthew Slipper`_
+
+.. _PIP-1: ./pip-001.rst
+.. _PIP-7: ./pip-007.rst
+.. _Matthew Slipper: https://www.matthewslipper.com

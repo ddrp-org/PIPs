@@ -36,13 +36,16 @@ The ``Update`` Message
 #. ``type``: ``0x04``
 #. Data:
 
-    #. ``name``: ``string``
+    #. ``tld``: ``string``
+    #. ``subdomain``: ``string``
     #. ``timestamp``: ``Time``
     #. ``merkle_root``: ``[32]byte``
     #. ``reserved``: ``[32]byte``
     #. ``signature``: ``Signature``
 
-The ``name`` field represents the Handshake TLD whose blob is being updated. It MUST be set.
+The ``tld`` field represents the Handshake tld whose blob is being updated. It MUST be set.
+
+The ``subdomain`` field represents the subdomain partition that is being updated. See `PIP-8`_ for more details on ``subdomain`` records.
 
 The ``timestamp`` field represents the timestamp of the blob's update.
 
@@ -73,22 +76,28 @@ The first step in the synchronization process is for Alice to request a tree bas
 #. ``type``: ``0x05``
 #. Data:
 
-	 #. ``name``: ``string``
+	 #. ``tld``: ``string``
+   #. ``subdomain``: ``string``
 
-The ``name`` field represents the Handshake TLD being synchronized.
+The ``tld`` field represents the Handshake domain tld being synchronized.
+
+The ``subdomain`` field represents the subdomain partition that is being updated. 
 
 The ``TreeBaseRes`` Message
 ###########################
 
-Once Bob receives the ``DiffReq`` message, he responds with a ``DiffRes`` message. The ``DiffRes`` message is structured as follows, and all fields MUST be set:
+Once Bob receives the ``TreeBaseReq`` message, he responds with a ``TreeBaseRes`` message. The ``TreeBaseRes`` message is structured as follows, and all fields MUST be set:
 
 #. ``type``: ``0x06``
 #. Data:
 
-	#. ``name``: ``string``
-	#. ``tree_base``: ``[256][32]byte``
+   #. ``tld``: ``string``
+   #. ``subdomain``: ``string``
+	 #. ``tree_base``: ``[256][32]byte``
 
-The ``name`` field represents the Handshake TLD being synchronized.
+The ``tld`` field represents the Handshake domain tld being synchronized.
+
+The ``subdomain`` field represents the subdomain partition that is being updated. 
 
 The ``tree_base`` field represents the base of the Merkle tree as described in `PIP-3`_.
 
@@ -104,33 +113,47 @@ With the tree base in hand, Alice begins requesting sector data from Bob for eac
 #. ``type``: ``0x07``
 #. Data:
 
-	 #. ``name``: ``string``
+   #. ``tld``: ``string``
+   #. ``subdomain``: ``string``
 	 #. ``sector_id``: ``uint16``
+   #. ``last_sector_hash``: ``[32]byte``
 
-The ``name`` field represents the Handshake TLD for whom sectors are being requested.
+The ``tld`` field represents the Handshake domain tld being synchronized.
+
+The ``subdomain`` field represents the subdomain partition that is being updated. 
 
 The ``sector_id`` represents the ID of the sector whose data is being requested.
 
+The ``last_sector_hash`` represents the last hash of the sector from the requestor. If it is set to all zeroes, it represents the request is made for the entire sector.
+
 All fields MUST be set.
 
-Upon receipt of Alice's ``SectorReq``, Bob responds with a ``SectorRes`` message with the following structure:
+Upon receipt of Alice's ``SectorReq``, Bob can calculate the chunks that Alice doesn't have by regenerating the leaf hash from the first chunk and then compare it with ``last_sector_hash`` as it iterates forward till the end of the sector. A cache of ``[256][32]byte`` per sector (``[256][32]byte`` per blob) can be used to store a list of ``leaf`` to optimize read time. If ``last_sector_hash`` is not found, Bob can respond return ``SectorRes`` with the entire sector.
+
+Bob responds with a ``SectorRes`` message with the following structure:
 
 #. ``type``: ``0x08``
 #. Data:
 
-	 #. ``name``: ``string``
+   #. ``tld``: ``string``
+   #. ``subdomain``: ``string``
 	 #. ``sector_id``: ``uint16``
-	 #. ``sector``: ``[256]byte``
+   #. ``last_sector_hash``: ``[32]byte``
+	 #. ``sector``: ``up to [256]byte``
 
-The ``name`` field represents the Handshake TLD for whom sectors are being requested.
+The ``tld`` field represents the Handshake domain tld being synchronized.
+
+The ``subdomain`` field represents the subdomain partition that is being updated. 
 
 The ``sector_id`` field represents the ID of the sector whose data is being returned.
 
-The ``sector`` field represents the returned sector's data.
+The ``last_sector_hash`` represents the last hash of the sector from the requestor. If it is set to all zeroes, it represents the response contains the entire sector.
+
+The ``sector`` field represents the returned sector's data. If ``last_sector_hash`` is set, only the delta change since ``last_sector_hash`` should be returned.
 
 Nodes receiving ``SectorRes`` messages:
 
-- MUST verify the ``sector`` field against the validated ``tree_base`` received in the ``TreeBaseRes`` message.
+- MUST verify the ``sector`` and ``last_sector_hash`` (if necessary) field against the validated ``tree_base`` received in the ``TreeBaseRes`` message.
 
 Nodes in general:
 
@@ -159,9 +182,12 @@ The ``UpdateReq`` Message
 #. ``type``: ``0x0b``
 #. Data:
 
-	 #. ``name``: ``string``
+   #. ``tld``: ``string``
+   #. ``subdomain``: ``string``
 
-The ``name`` field represents the name for which data is being requested.
+The ``tld`` field represents the Handshake domain tld being synchronized.
+
+The ``subdomain`` field represents the subdomain partition that is being updated. 
 
 
 Authors

@@ -21,6 +21,7 @@ DDRP ban lists are simple, newline-delimited text files. Ban lists MUST start wi
   DDRPBAN:v1
   bannedname1
   anotherbadname
+  thisisasubdomain.evilname
 
 Parsers SHOULD tolerate duplicate names as well as leading/trailing whitespace around each name.
 

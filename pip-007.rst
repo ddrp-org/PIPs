@@ -1,4 +1,4 @@
-PIP-7: Subdomain Blobs
+PIP-7: Records
 ======================
 
 .. contents:: Table of Contents
@@ -7,60 +7,55 @@ PIP-7: Subdomain Blobs
 Overview
 ########
 
-Since space on DDRP is a scarce resource, blob owners may wish to partition
-their blob space into segments and offer those segments to third parties. This
-PIP defines a standard format for partitioning blobs into named sub-segments
-called "subdomains." Note that these subdomains are distinct from any subdomains
-that may exist on the blob's Handshake name - the existence of a subdomain blob
-does not imply the existence of any additional DNS records defined on the TLD.
+DDRP's "global view" property allows applications to query and organize the data stored on the network however they see fit. Rather than posting content to a central server, users would instead write content to their DDRP blobs. In turn, client applications would read each blob and display the content contained therein according to the consumer's preferences.
 
-Magic Value
-###########
+To make sense of the content, we store them as list of records inside a blob. A record is a pre-formatted message that contains data as specified by a record type. This PIP defines a standard "record envelope" that encodes common metadata about them.
 
-Blobs that contain subdomains MUST start with the magic value SUB
-(``0x535542``).
+Record Envelopes
+################
 
-Subdomain Records
-#################
+All records are encased in an envelope structure that encodes common
+metadata about them. Envelopes are structured as follows:
 
-The first 32,768 bytes of the blob (inclusive of the Magic Value) MAY contain
-up to 255 Subdomain Records. Subdomain Records define the human-readable names
-used to address each blob partition, their index, and a public key for
-authenticating the messages contained within the partition.
+#. ``envelope_len``: ``Uvarint``
+#. ``record_type``: ``[8]byte``
+#. ``subdomain``: ``[32]byte``
+#. ``timestamp``: ``time.Time``
+#. ``record``: ``[N]byte``
 
-Subdomain Records are formatted as follows:
+The ``envelope_len`` field represents the byte length of the envelope on the
+wire. This field MAY be longer than actual contents of the envelope - that is,
+clients MAY encode additional data at the end of the envelope that is not part
+of either the ``envelope`` structure or the ``record``. This allows all record
+types to be extended easily in the future.
 
-#. ``version``: ``uint8``
-#. ``name``: ``[15]byte``
-#. ``index``: ``uint8``
-#. ``public_key``: ``[33]byte``
+The ``record_type`` field represents the type of the record contained in the
+envelope. By convention, ``record_type`` is a compound fields consisting of
+the following components:
 
-The ``version`` field represents the version of the subdomain record. Currently,
-it MUST be set to ``0x01``.
+#. ``record_type_id``: ``[3]byte``
+#. ``record_version``: ``uint8``
+#. ``record_subtype``: ``[4]byte``
 
-The ``name`` field represents the subdomain itself. Subdomains MUST have at
-least one character, and be encoded as valid UTF-8.
+This is done to allow application developers to define their own
+record types and extend DDRP social functionality as they see fit. Client MUST
+support parsing records that are well-formed but with unknown record types.
 
-The ``index`` field represents the index value that identifies this subdomain
-record. Index values are used to link messages (described in `PIP-8`_) with
-subdomain records. While not required, the ``index`` value SHOULD match the
-index at which the Subdomain Record appears in the blob.
+See `PIP-9`_ for social records supporting different social networking use cases.
 
-The ``public_key`` field contains a public key used to authenticate message
-associated with the Subdomain Record. It MUST be set to a valid ``secp256k1``
-compressed public key if authentication is requested or all zeroes.
+The ``subdomain`` field represents the name of the subdomain partition. The record is intended for the tld when leave blank. See `PIP-8`_ for more details.
 
-Zlib Compression Dictionary
-###########################
+The ``timestamp`` field represents the creation time of this record, and is also used as a unique identifier for a record of any types. It is RECOMMENDED that applications ignore different record types with same timestamp. For example, let's say that a blob contained a ``PST`` record with timestamp ``1592628171`` in the past, any subsequent records with the timestamp ``1592628171`` but record types other than ``PST`` SHOULD be ignored by the consumer. If an application come accross the same timestamp and the same type, it SHOULD treat the record from the most recent blob updates as the most updated record.
 
-The second 32,768 bytes of the blob is reserved for a zlib compression
-dictionary. It is currently unused, and MUST be filled with zeroes.
+The ``record`` field represents the wire-encoded record itself.
 
-Subdomain Data
-##############
 
-The remainder of the blob MAY contain one or more Social Messages. See `PIP-8`_
-for more details.
+Referencing a record using a link
+*********************************
+
+We serialize ``tld``, ``subdomain``, ``timestamp`` to reference the record across the protocol.
+
+DDRP link to a record can be represented as ``ddrp://subdomain.tld/timstamp``
 
 Authors
 #######
@@ -68,4 +63,5 @@ Authors
 - `Matthew Slipper`_
 
 .. _PIP-8: ./pip-008.rst
+.. _PIP-9: ./pip-009.rst
 .. _Matthew Slipper: https://www.matthewslipper.com
