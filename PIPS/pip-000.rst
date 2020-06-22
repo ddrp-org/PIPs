@@ -26,6 +26,24 @@ query local state rather than the network.
 
 See `PIP-3`_ for more information on blob structure and blob ownership.
 
+Records
+*******
+
+Records are data schema used as premitive data type to facilitate different 
+use cases. They can reference each other to form relationships, similar to 
+a row in relational database. 
+
+See `PIP-Y`_ for social records supporting different social networking use cases.
+
+Subdomains
+**********
+
+Blob owners can partition their blob space and delegate write access to anyone. Subdomain 
+records are stored inside each blob with a mapping of subdomain name and public key, 
+of which they can use to authenticate updates to their specific partition.
+
+See `PIP-Y`_ for partition records supporting subdomain use cases.
+
 Network Topology
 ****************
 
@@ -39,10 +57,13 @@ more information on how nodes connect to each other.
 About the PIPs
 ##############
 
-PIP stands for Protocol Improvement Proposal. Over time, they will form the
-canonical DDRP specification. They are currently being extracted from the
-`reference implementation`_, and should be considered a work in progress that is
-subject to change at any time.
+PIP stands for Protocol Improvement Proposal. A PIP is intended as the primary way for the community to propose new features and technical specification of that feature. All PIPs should follow the following process:
+
+  #. Draft: Start an issue with the label ``draft`` as a starting point of discussion.
+  #. Review: Once the PIP has reached enough technical specificity and is ready for review by a wide audience, submit a pull request with the label ``rfc``. 
+  #. Final: A PIP in review is considered to be final when the pull request is merged.
+     
+The process above is designed to be minimalistic at first and should evolve with the dev community of DDRP.
 
 Acknowledgements
 ################
