@@ -42,7 +42,7 @@ Nomenclature
 ############
 
 Identity key
-   A ``secp256k1`` key pair that identifies the node and authenticates transport 
+   A ``secp256k1`` key pair that identifies the node and authenticates wire 
    messages to the rest of the network.
 
 DDRP key
@@ -88,10 +88,10 @@ another. All messages are placed in an envelope prior to being sent over the
 wire. Envelopes are signed with the sending node's identity key prior to being
 sent.
 
-Message Envelope
-################
+Wire Envelope
+#############
 
-Transport message are encoded and decoded in-order according to their type and the
+Wire message are encoded and decoded in-order according to their type and the
 message's schema. A message's structure must be known beforehand in order to
 encode or decode it - hence the addition of the type field in the envelope.
 

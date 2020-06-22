@@ -27,7 +27,7 @@ Record Fields
 *************
 #. ``title``: ``string``
 #. ``body``: ``string``
-#. ``reference``: ``string | RecordRef`` (see `PIP-1`_)
+#. ``reference``: ``string | RecordID`` (see `PIP-1`_)
 
 The ``body`` field contains the post's body. SHOULD be formatted using Markdown.
 
@@ -37,9 +37,9 @@ length.
 The ``reference`` can reference multiple things:
 
 - if it is blank, this post SHOULD be treated as an original post without topic.
-- if it is a ``RecordRef`` that reference another ``PST`` record, this record SHOULD be treated as a reply to that post.
-- if it is a ``RecordRef`` that reference another ``PST-C`` record, this record SHOULD be treated as a post into that channel.
-- if it is a ``RecordRef`` that reference an unknown record, this record SHOULD be treated as an original post without topic.
+- if it is a ``RecordID`` that reference another ``PST`` record, this record SHOULD be treated as a reply to that post.
+- if it is a ``RecordID`` that reference another ``PST-C`` record, this record SHOULD be treated as a post into that channel.
+- if it is a ``RecordID`` that reference an unknown record, this record SHOULD be treated as an original post without topic.
 - otherwise, it should be treated as a post under a topic encoded as UTF-8 ``string``.
 
 
@@ -61,7 +61,7 @@ Record Fields
 *************
 #. ``title``: ``string``
 #. ``body``: ``string``
-#. ``reference``: ``string | RecordRef`` (see `PIP-1`_)
+#. ``reference``: ``string | RecordID`` (see `PIP-1`_)
 
 The ``body`` field contains the channel's description. SHOULD be formatted using Markdown.
 
@@ -71,9 +71,9 @@ length.
 The ``reference`` can reference multiple things:
 
 - if it is blank, this channel SHOULD be treated as a channel with no topic.
-- if it is a ``RecordRef`` that reference another ``PST`` record, this record SHOULD be treated as a reply to that post.
-- if it is a ``RecordRef`` that reference another ``PST-C`` record, this record SHOULD be treated as a sub-channel under that channel (sub-forums, .
-- if it is a ``RecordRef`` that reference an unknown record, this record SHOULD be treated as a channel with no topic.
+- if it is a ``RecordID`` that reference another ``PST`` record, this record SHOULD be treated as a reply to that post.
+- if it is a ``RecordID`` that reference another ``PST-C`` record, this record SHOULD be treated as a sub-channel under that channel (sub-forums, .
+- if it is a ``RecordID`` that reference an unknown record, this record SHOULD be treated as a channel with no topic.
 - otherwise, it should be treated as a channel under a topic encoded as UTF-8 ``string``.
 
 
@@ -102,10 +102,10 @@ Record Type
 
 Record Fields
 *************
-#. ``reference``: ``string | RecordRef`` (see `PIP-1`_)
+#. ``reference``: ``string | RecordID`` (see `PIP-1`_)
 
-- if it is a ``RecordRef`` that reference a ``PST`` record, this record SHOULD be treated as a moderation toward that post.
-- if it is a ``RecordRef`` that reference an unknown record, this record SHOULD be ignored.
+- if it is a ``RecordID`` that reference a ``PST`` record, this record SHOULD be treated as a moderation toward that post.
+- if it is a ``RecordID`` that reference an unknown record, this record SHOULD be ignored.
 - otherwise, it should be treated as a moderation toward the topic encoded as UTF-8 ``string``.
   
 
@@ -141,7 +141,7 @@ Record Type
 
 Record Fields
 *************
-#. ``reference``: ``string | RecordRef`` (see `PIP-1`_)
+#. ``reference``: ``string | RecordID`` (see `PIP-1`_)
    
 - applications SHOULD allow users to easily select from different declared moderators.
 - if original postors declare themselves as moderator for a post, applications SHOULD use that as the default moderation policy.
@@ -163,13 +163,13 @@ Record Type
 
 Record Fields
 *************
-#. ``reference``: ``NameRef | RecordRef`` (see `PIP-1`_)
+#. ``reference``: ``DomainName | RecordID`` (see `PIP-1`_)
 
 The ``reference`` can reference multiple things:
 
-- if it is a ``RecordRef`` that reference a ``PST`` record, this record SHOULD be treated as a connection (subscribe, mute) to that post.
-- if it is a ``RecordRef`` that reference an unknown record, this record SHOULD be ignored.
-- if it is a ``NameRef`` that reference an known name, this record SHOULD be treated as a connection to that name.
+- if it is a ``RecordID`` that reference a ``PST`` record, this record SHOULD be treated as a connection (subscribe, mute) to that post.
+- if it is a ``RecordID`` that reference an unknown record, this record SHOULD be ignored.
+- if it is a ``DomainName`` that reference an known name, this record SHOULD be treated as a connection to that name.
 - otherwise, it should be ignored.
 
 One-way Moderation Link Record
@@ -192,16 +192,16 @@ Record Type
 
 Record Fields
 *************
-#. ``name``: ``NameRef`` (see `PIP-1`_)
-#. ``reference``: ``RecordRef`` (see `PIP-1`_)
+#. ``name``: ``DomainName`` (see `PIP-1`_)
+#. ``reference``: ``RecordID`` (see `PIP-1`_)
    
-The ``name`` reference a valid ``NameRef``. This record SHOULD be treated as a link to that name's moderation records.
+The ``name`` reference a valid ``DomainName``. This record SHOULD be treated as a link to that name's moderation records.
 
 The ``reference`` can reference multiple things:
 
 - if it is blank, this record SHOULD be treated as a link to all of that name's moderations records.
-- if it is a ``RecordRef`` that reference a ``PST`` record, this record SHOULD be treated as a link to that name's moderations records under a specific post.
-- if it is a ``RecordRef`` that reference an unknown record, this record SHOULD be ignored.
+- if it is a ``RecordID`` that reference a ``PST`` record, this record SHOULD be treated as a link to that name's moderations records under a specific post.
+- if it is a ``RecordID`` that reference an unknown record, this record SHOULD be ignored.
 - otherwise, it should be treated as a link to that name's moderations records under a specific topic encoded as UTF-8 ``string``.
 
 

@@ -31,8 +31,8 @@ The below list outlines how primitives types are encoded:
 #. ``[N]T``: Encoded as the concatenation of the encoding of T.
 #. ``[]T``: Encoded as a binary.Uvarint length prefix followed by the
    concatenation of the encoding of T.
-#. ``RecordRef``: serialized string formatted as ``[subdomain].[tld]/[timestamp] (e.g. sub.me/12345678)``, encoded as a a UTF-8 []byte.
-#. ``NameRef``: serialized string formatted as ``[subdomain].[tld] (e.g. sub.me)``, encoded as a a UTF-8 []byte.
+#. ``RecordID``: Serialized string formatted as ``[subdomain].[tld]/[timestamp] (e.g. sub.me/12345678)``, encoded as a a UTF-8 []byte.
+#. ``DomainName``: Serialized string formatted as ``[subdomain].[tld] (e.g. sub.me)``, encoded as a a UTF-8 []byte.
 
 There are also a set of DDRP-specific well-known types with special encodings:
 
